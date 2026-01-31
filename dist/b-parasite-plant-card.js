@@ -7,7 +7,7 @@ import {
 import { join } from "https://unpkg.com/lit-html@3.3.0/directives/join.js?module";
 import { map } from "https://unpkg.com/lit-html@3.3.0/directives/map.js?module";
 
-const CUSTOM_CARD_NAME = 'fyta-plant-card';
+const CUSTOM_CARD_NAME = 'b-paraiste-plant-card';
 
 const DecimalsState = {
   UNTOUCHED: false,
@@ -82,8 +82,6 @@ const SensorTypes = {
   LIGHT_STATE: 'light',
   MOISTURE: 'moisture',
   MOISTURE_STATE: 'moisture',
-  NUTRIENTS: 'nutrients',
-  NUTRIENTS_STATE: 'nutrients',
   PLANT_IMAGE_DEFAULT: 'plant_image_default',
   PLANT_IMAGE_USER: 'plant_image_user',
   PLANT_STATE: 'plant',
@@ -97,13 +95,13 @@ const SensorTypes = {
 const TranslationKeys = {
   FERTILIZATION_LAST: 'last_fertilised',
   FERTILIZATION_NEXT: 'next_fertilisation',
-  LIGHT: 'light',
+  LIGHT: 'Illuminance',
   LIGHT_STATUS: 'light_status',
   MOISTURE_STATUS: 'moisture_status',
   NUTRIENTS_STATUS: 'nutrients_status',
   PLANT_IMAGE_USER: 'plant_image_user',
   PLANT_STATUS: 'plant_status',
-  SALINITY: 'salinity',
+  SALINITY: 'Humidity',
   SALINITY_STATUS: 'salinity_status',
   SCIENTIFIC_NAME: 'scientific_name',
   TEMPERATURE_STATUS: 'temperature_status',
@@ -118,7 +116,6 @@ const DEFAULT_CONFIG = {
     { type: SensorTypes.LIGHT, isEnabled: true },
     { type: SensorTypes.MOISTURE, isEnabled: true },
     { type: SensorTypes.TEMPERATURE, isEnabled: true },
-    { type: SensorTypes.NUTRIENTS, isEnabled: true },
     { type: SensorTypes.SALINITY, isEnabled: false },
   ],
   preferred_image: PreferredPlantImage.USER,
@@ -128,6 +125,7 @@ const DEFAULT_CONFIG = {
   state_color_plant: PlantStateColorState.NAME,
   state_color_sensor: true,
   title: '',
+  custom_image: '',
 };
 
 const SCHEMA_PART_ONE = [
@@ -176,12 +174,6 @@ const SCHEMA_PART_ONE = [
 
 const SCHEMA_PART_TWO = [
   {
-    name: 'nutrition_info',
-    type: 'constant',
-    label: 'Nutrition and Salinity',
-    value: 'The Nutrition Score combines multiple measurements (salinity, conductivity, growth data, and fertilization timing) into a single metric. Showing salinity separately is generally not needed as it is already included in this score.',
-  },
-  {
     name: 'header_layout',
     type: 'constant',
     label: 'Layout',
@@ -228,6 +220,14 @@ const SCHEMA_PART_TWO = [
       },
     },
     default: DEFAULT_CONFIG.preferred_image,
+  },
+  {
+    name: 'custom_image',
+    label: 'Custom plant image URL',
+    selector: {
+      text: {},
+    },
+    default: DEFAULT_CONFIG.custom_image,
   },
   {
     type: 'grid',
@@ -290,27 +290,23 @@ const SENSOR_SETTINGS = {
   },
   [SensorTypes.LIGHT]: {
     icon: 'mdi:white-balance-sunny',
-    name: 'Light',
+    name: 'Illuminance',
   },
   [SensorTypes.MOISTURE]: {
     min: 0,
     max: 100,
-    icon: 'mdi:water',
-    name: 'Soil Moisture',
-  },
-  [SensorTypes.NUTRIENTS]: {
-    icon: 'mdi:bucket',
-    name: 'Nutrition',
+    icon: 'mdi:water-percent',
+    name: 'Moisture',
   },
   [SensorTypes.TEMPERATURE]: {
     min: 0,
     max: 50,
     icon: 'mdi:thermometer',
-    name: 'Ambient Temperature',
+    name: 'Temperature',
   },
   [SensorTypes.SALINITY]: {
-    icon: 'mdi:water-percent',
-    name: 'Salinity',
+    icon: 'mdi:water',
+    name: 'Humidity',
   },
 };
 
@@ -401,7 +397,6 @@ class FytaPlantCard extends LitElement {
     this._stateEntityIds = {
       [SensorTypes.LIGHT_STATE]: '',
       [SensorTypes.MOISTURE_STATE]: '',
-      [SensorTypes.NUTRIENTS_STATE]: '',
       [SensorTypes.PLANT_STATE]: '',
       [SensorTypes.SALINITY_STATE]: '',
       [SensorTypes.TEMPERATURE_STATE]: '',
@@ -486,7 +481,6 @@ class FytaPlantCard extends LitElement {
     switch (stateType) {
       case SensorTypes.LIGHT_STATE:
       case SensorTypes.MOISTURE_STATE:
-      case SensorTypes.NUTRIENTS_STATE:
       case SensorTypes.SALINITY_STATE:
       case SensorTypes.TEMPERATURE_STATE: {
         const entityId = this._stateEntityIds[stateType];
@@ -539,6 +533,12 @@ class FytaPlantCard extends LitElement {
   }
 
   _getPlantImageSrc(hass) {
+    // Priority 1: Custom image URL if provided
+    if (this.config.custom_image && this.config.custom_image.trim() !== '') {
+      return '/local/plants/' + this.config.custom_image.trim();
+    }
+
+    // Priority 2: User image from entity
     if (this.config.preferred_image === PreferredPlantImage.USER) {
       const userImageEntityId = this._otherEntityIds[SensorTypes.PLANT_IMAGE_USER];
 
@@ -547,6 +547,7 @@ class FytaPlantCard extends LitElement {
       }
     }
 
+    // Priority 3: Default image from entity
     const defaultImageEntityId = this._otherEntityIds[SensorTypes.PLANT_IMAGE_DEFAULT];
     if (defaultImageEntityId && hass.states[defaultImageEntityId]?.attributes.entity_picture) {
       return hass.states[defaultImageEntityId]?.attributes.entity_picture || '';
@@ -577,14 +578,14 @@ class FytaPlantCard extends LitElement {
     }
 
     if (id.startsWith(EntityType.SENSOR)) {
-      switch (hassEntity.translation_key) {
+      switch (hassEntity.name) {
         case TranslationKeys.LIGHT_STATUS:
         case TranslationKeys.MOISTURE_STATUS:
         case TranslationKeys.NUTRIENTS_STATUS:
         case TranslationKeys.PLANT_STATUS:
         case TranslationKeys.SALINITY_STATUS:
         case TranslationKeys.TEMPERATURE_STATUS: {
-          this._stateEntityIds[hassEntity.translation_key.replace('_status', '')] = hassState.entity_id;
+          this._stateEntityIds[hassEntity.name.replace('_status', '')] = hassState.entity_id;
           return;
         }
 
@@ -897,7 +898,7 @@ class FytaPlantCard extends LitElement {
       return html`
         <ha-card>
           <hui-warning>
-            Please select a FYTA device in the card configuration.
+            Please select a b-parasite device in the card configuration.
           </hui-warning>
         </ha-card>
       `;
@@ -969,9 +970,10 @@ class FytaPlantCard extends LitElement {
 
     // Only show battery if level is at or below the threshold
     // Skip showing if threshold is 0 (never show)
-    if (threshold === 0 || batteryLevel > threshold) {
-      return '';
-    }
+    // TODO: refactor
+    // if (threshold === 0 || batteryLevel > threshold) {
+    //   return '';
+    // }
 
     const BatteryStatusText = {
       GOOD: 'Good',
@@ -1024,7 +1026,6 @@ class FytaPlantCard extends LitElement {
       const calculatedPercentage = (sensorValue - sensorSettings.min) / (sensorSettings.max - sensorSettings.min) * 100;
       percentage = Math.max(0, Math.min(100, calculatedPercentage));
     }
-
     switch (statusState) {
       case MeasurementStatusStates.TOO_LOW: {
         return {
@@ -1117,9 +1118,9 @@ class FytaPlantCard extends LitElement {
 
     // Render a single sensor
     const renderSensor = (sensorType) => {
-      if (sensorType === SensorTypes.NUTRIENTS) {
-        return renderNutrition();
-      }
+      // if (sensorType === SensorTypes.NUTRIENTS) {
+      //   return renderNutrition();
+      // }
 
       const sensorSettings = SENSOR_SETTINGS[sensorType];
       const sensorEntityId = this._measurementEntityIds[sensorType];
@@ -1130,15 +1131,85 @@ class FytaPlantCard extends LitElement {
       // Get proper units for display and tooltip
       const unitOfMeasurement = hass.states[sensorEntityId].attributes.unit_of_measurement || '';
 
+// const MeasurementStatusStates = {
+//   NO_DATA: 'no_data',
+//   TOO_LOW: 'too_low',
+//   LOW: 'low',
+//   PERFECT: 'perfect',
+//   HIGH: 'high',
+//   TOO_HIGH: 'too_high',
+// };
+
       // Get the proper status entity
       let sensorStatus = '';
-
-      const statusEntityId = this._stateEntityIds[sensorType];
-      if (statusEntityId) {
-        sensorStatus = hass.states[statusEntityId].state;
+      switch (sensorType) {
+        case SensorTypes.MOISTURE:
+          sensorStatus = MeasurementStatusStates.NO_DATA;
+          if (sensorEntity.state < 10) {
+            sensorStatus = MeasurementStatusStates.TOO_LOW;
+          } else if (sensorEntity.state < 30) {
+            sensorStatus = MeasurementStatusStates.LOW;
+          } else if (sensorEntity.state <= 70) {
+            sensorStatus = MeasurementStatusStates.PERFECT;
+          } else if (sensorEntity.state <= 90) {
+            sensorStatus = MeasurementStatusStates.HIGH;
+          } else {
+            sensorStatus = MeasurementStatusStates.TOO_HIGH;
+          }
+          break;
+        case SensorTypes.LIGHT:
+          sensorStatus = MeasurementStatusStates.NO_DATA;
+          if (sensorEntity.state < 5) {
+            sensorStatus = MeasurementStatusStates.TOO_LOW;
+          } else if (sensorEntity.state < 10) {
+            sensorStatus = MeasurementStatusStates.LOW;
+          } else if (sensorEntity.state <= 70) {
+            sensorStatus = MeasurementStatusStates.PERFECT;
+          } else if (sensorEntity.state <= 90) {
+            sensorStatus = MeasurementStatusStates.HIGH;
+          } else {
+            sensorStatus = MeasurementStatusStates.TOO_HIGH;
+          }
+          break;
+        case SensorTypes.TEMPERATURE:
+          sensorStatus = MeasurementStatusStates.NO_DATA;
+          if (sensorEntity.state < 5) {
+            sensorStatus = MeasurementStatusStates.TOO_LOW;
+          } else if (sensorEntity.state < 10) {
+            sensorStatus = MeasurementStatusStates.LOW;
+          } else if (sensorEntity.state <= 30) {
+            sensorStatus = MeasurementStatusStates.PERFECT;
+          } else if (sensorEntity.state <= 40) {
+            sensorStatus = MeasurementStatusStates.HIGH;
+          } else {
+            sensorStatus = MeasurementStatusStates.TOO_HIGH;
+          }          
+          break;
+        case SensorTypes.SALINITY:
+          sensorStatus = MeasurementStatusStates.NO_DATA;
+          if (sensorEntity.state < 20) {
+            sensorStatus = MeasurementStatusStates.TOO_LOW;
+          } else if (sensorEntity.state < 30) {
+            sensorStatus = MeasurementStatusStates.LOW;
+          } else if (sensorEntity.state <= 70) {
+            sensorStatus = MeasurementStatusStates.PERFECT;
+          } else if (sensorEntity.state <= 90) {
+            sensorStatus = MeasurementStatusStates.HIGH;
+          } else {
+            sensorStatus = MeasurementStatusStates.TOO_HIGH;
+          }
+          break;
+        default:
+          sensorStatus = MeasurementStatusStates.NO_DATA;
       }
+      // TODO: refactor
+      // const statusEntityId = this._stateEntityIds[sensorType];
+      // if (statusEntityId) {
+      //   sensorStatus = hass.states[statusEntityId].state;
+      // }
 
-      const color = this._getStateColor(sensorType, hass);
+      // const color = this._getStateColor(sensorType, hass);
+      const color = MeasurementStatusColors[sensorStatus];
 
       // Calculate meter width and class based on status
       const meterState = this._calculateMeterState(sensorSettings, sensorEntity, sensorStatus);
@@ -1450,7 +1521,7 @@ customElements.define(`${CUSTOM_CARD_NAME}-editor`, FytaPlantCardEditor);
 window.customCards = window.customCards || [];
 window.customCards.push({
   type: CUSTOM_CARD_NAME,
-  name: 'FYTA Plant Card',
+  name: 'b-parasite Plant Card',
   preview: true,
-  description: 'Custom card for your FYTA plant data',
+  description: 'Custom card for your b-parasite plant data',
 });
