@@ -396,7 +396,7 @@ class BParasitePlantCard extends LitElement {
     return isNaN(entityPrecision) ? sensorValue : this._formatDecimals(sensorValue, entityPrecision);
   }
 
-  _getPlantImageSrc(hass) {
+  _getPlantImageSrc() {
     if (this.config.preferred_image === PreferredPlantImage.USER && this.config.custom_image && this.config.custom_image.trim() !== '') {
       return '/local/plants/' + this.config.custom_image.trim();
     } else {
@@ -413,18 +413,18 @@ class BParasitePlantCard extends LitElement {
 
     if (id.startsWith(EntityType.SENSOR)) {
       switch (hassEntity.name) {
-      default: {
-        switch (hassState.attributes.device_class) {
-        case DeviceClass.BATTERY:
-        case DeviceClass.ILLUMINANCE:
-        case DeviceClass.HUMIDITY:
-        case DeviceClass.MOISTURE:
-        case DeviceClass.TEMPERATURE: {
-          this._measurementEntityIds[hassState.attributes.device_class] = hassState.entity_id;
-          return;
+        default: {
+          switch (hassState.attributes.device_class) {
+            case DeviceClass.BATTERY:
+            case DeviceClass.ILLUMINANCE:
+            case DeviceClass.HUMIDITY:
+            case DeviceClass.MOISTURE:
+            case DeviceClass.TEMPERATURE: {
+              this._measurementEntityIds[hassState.attributes.device_class] = hassState.entity_id;
+              return;
+            }
+          }
         }
-        }
-      }
       }
     }
   }
@@ -734,7 +734,7 @@ class BParasitePlantCard extends LitElement {
         <div id="container" class="${this.config.display_mode === DisplayMode.COMPACT ? 'compact-mode' : ''}">
           <div class="header">
             <div id="plant-image">
-              <img src="${this._getPlantImageSrc(this.hass)}">
+              <img src="${this._getPlantImageSrc()}">
             </div>
             <div id="plant-text">
               <span
@@ -824,39 +824,39 @@ class BParasitePlantCard extends LitElement {
       percentage = Math.max(0, Math.min(100, calculatedPercentage));
     }
     switch (statusState) {
-    case MeasurementStatusStates.TOO_LOW: {
-      return {
-        percentage: percentage !== null ? percentage : 10,
-        class: MeterClass.BAD,
-      };
-    }
-    case MeasurementStatusStates.LOW: {
-      return {
-        percentage: percentage !== null ? percentage : 30,
-        class: MeterClass.WARNING,
-      };
-    }
-    case MeasurementStatusStates.PERFECT: {
-      return {
-        percentage: percentage !== null ? percentage : 50,
-        class: MeterClass.GOOD,
-      };
-    }
-    case MeasurementStatusStates.HIGH: {
-      return {
-        percentage: percentage !== null ? percentage : 70,
-        class: MeterClass.WARNING,
-      };
-    }
-    case MeasurementStatusStates.TOO_HIGH: {
-      return {
-        percentage: percentage !== null ? percentage : 90,
-        class: MeterClass.BAD,
-      };
-    }
-    default: {
-      return { percentage: 0, class: MeterClass.UNAVAILABLE };
-    }
+      case MeasurementStatusStates.TOO_LOW: {
+        return {
+          percentage: percentage !== null ? percentage : 10,
+          class: MeterClass.BAD,
+        };
+      }
+      case MeasurementStatusStates.LOW: {
+        return {
+          percentage: percentage !== null ? percentage : 30,
+          class: MeterClass.WARNING,
+        };
+      }
+      case MeasurementStatusStates.PERFECT: {
+        return {
+          percentage: percentage !== null ? percentage : 50,
+          class: MeterClass.GOOD,
+        };
+      }
+      case MeasurementStatusStates.HIGH: {
+        return {
+          percentage: percentage !== null ? percentage : 70,
+          class: MeterClass.WARNING,
+        };
+      }
+      case MeasurementStatusStates.TOO_HIGH: {
+        return {
+          percentage: percentage !== null ? percentage : 90,
+          class: MeterClass.BAD,
+        };
+      }
+      default: {
+        return { percentage: 0, class: MeterClass.UNAVAILABLE };
+      }
     }
   }
 
@@ -927,64 +927,64 @@ class BParasitePlantCard extends LitElement {
       let sensorStatus = '';
 
       switch (sensorType) {
-      case SensorTypes.MOISTURE:
-        sensorStatus = MeasurementStatusStates.NO_DATA;
-        if (sensorEntity.state < 10) {
-          sensorStatus = MeasurementStatusStates.TOO_LOW;
-        } else if (sensorEntity.state < 30) {
-          sensorStatus = MeasurementStatusStates.LOW;
-        } else if (sensorEntity.state <= 70) {
-          sensorStatus = MeasurementStatusStates.PERFECT;
-        } else if (sensorEntity.state <= 90) {
-          sensorStatus = MeasurementStatusStates.HIGH;
-        } else {
-          sensorStatus = MeasurementStatusStates.TOO_HIGH;
-        }
-        break;
-      case SensorTypes.ILLUMINANCE:
-        sensorStatus = MeasurementStatusStates.NO_DATA;
-        if (sensorEntity.state < 5) {
-          sensorStatus = MeasurementStatusStates.TOO_LOW;
-        } else if (sensorEntity.state < 10) {
-          sensorStatus = MeasurementStatusStates.LOW;
-        } else if (sensorEntity.state <= 70) {
-          sensorStatus = MeasurementStatusStates.PERFECT;
-        } else if (sensorEntity.state <= 90) {
-          sensorStatus = MeasurementStatusStates.HIGH;
-        } else {
-          sensorStatus = MeasurementStatusStates.TOO_HIGH;
-        }
-        break;
-      case SensorTypes.TEMPERATURE:
-        sensorStatus = MeasurementStatusStates.NO_DATA;
-        if (sensorEntity.state < 5) {
-          sensorStatus = MeasurementStatusStates.TOO_LOW;
-        } else if (sensorEntity.state < 10) {
-          sensorStatus = MeasurementStatusStates.LOW;
-        } else if (sensorEntity.state <= 30) {
-          sensorStatus = MeasurementStatusStates.PERFECT;
-        } else if (sensorEntity.state <= 40) {
-          sensorStatus = MeasurementStatusStates.HIGH;
-        } else {
-          sensorStatus = MeasurementStatusStates.TOO_HIGH;
-        }          
-        break;
-      case SensorTypes.HUMIDITY:
-        sensorStatus = MeasurementStatusStates.NO_DATA;
-        if (sensorEntity.state < 20) {
-          sensorStatus = MeasurementStatusStates.TOO_LOW;
-        } else if (sensorEntity.state < 30) {
-          sensorStatus = MeasurementStatusStates.LOW;
-        } else if (sensorEntity.state <= 70) {
-          sensorStatus = MeasurementStatusStates.PERFECT;
-        } else if (sensorEntity.state <= 90) {
-          sensorStatus = MeasurementStatusStates.HIGH;
-        } else {
-          sensorStatus = MeasurementStatusStates.TOO_HIGH;
-        }
-        break;
-      default:
-        sensorStatus = MeasurementStatusStates.NO_DATA;
+        case SensorTypes.MOISTURE:
+          sensorStatus = MeasurementStatusStates.NO_DATA;
+          if (sensorEntity.state < 10) {
+            sensorStatus = MeasurementStatusStates.TOO_LOW;
+          } else if (sensorEntity.state < 30) {
+            sensorStatus = MeasurementStatusStates.LOW;
+          } else if (sensorEntity.state <= 70) {
+            sensorStatus = MeasurementStatusStates.PERFECT;
+          } else if (sensorEntity.state <= 90) {
+            sensorStatus = MeasurementStatusStates.HIGH;
+          } else {
+            sensorStatus = MeasurementStatusStates.TOO_HIGH;
+          }
+          break;
+        case SensorTypes.ILLUMINANCE:
+          sensorStatus = MeasurementStatusStates.NO_DATA;
+          if (sensorEntity.state < 5) {
+            sensorStatus = MeasurementStatusStates.TOO_LOW;
+          } else if (sensorEntity.state < 10) {
+            sensorStatus = MeasurementStatusStates.LOW;
+          } else if (sensorEntity.state <= 70) {
+            sensorStatus = MeasurementStatusStates.PERFECT;
+          } else if (sensorEntity.state <= 90) {
+            sensorStatus = MeasurementStatusStates.HIGH;
+          } else {
+            sensorStatus = MeasurementStatusStates.TOO_HIGH;
+          }
+          break;
+        case SensorTypes.TEMPERATURE:
+          sensorStatus = MeasurementStatusStates.NO_DATA;
+          if (sensorEntity.state < 5) {
+            sensorStatus = MeasurementStatusStates.TOO_LOW;
+          } else if (sensorEntity.state < 10) {
+            sensorStatus = MeasurementStatusStates.LOW;
+          } else if (sensorEntity.state <= 30) {
+            sensorStatus = MeasurementStatusStates.PERFECT;
+          } else if (sensorEntity.state <= 40) {
+            sensorStatus = MeasurementStatusStates.HIGH;
+          } else {
+            sensorStatus = MeasurementStatusStates.TOO_HIGH;
+          }          
+          break;
+        case SensorTypes.HUMIDITY:
+          sensorStatus = MeasurementStatusStates.NO_DATA;
+          if (sensorEntity.state < 20) {
+            sensorStatus = MeasurementStatusStates.TOO_LOW;
+          } else if (sensorEntity.state < 30) {
+            sensorStatus = MeasurementStatusStates.LOW;
+          } else if (sensorEntity.state <= 70) {
+            sensorStatus = MeasurementStatusStates.PERFECT;
+          } else if (sensorEntity.state <= 90) {
+            sensorStatus = MeasurementStatusStates.HIGH;
+          } else {
+            sensorStatus = MeasurementStatusStates.TOO_HIGH;
+          }
+          break;
+        default:
+          sensorStatus = MeasurementStatusStates.NO_DATA;
       }
 
       const color = MeasurementStatusColors[sensorStatus];
@@ -1120,24 +1120,24 @@ export class BParasitePlantCardEditor extends LitElement {
     }
 
     switch (sensorType) {
-    case SensorTypes.ILLUMINANCE: {
-      return 'var(--yellow-color, #ffeb3b)';
-    }
-    case SensorTypes.MOISTURE: {
-      return 'var(--blue-color, #2196f3)';
-    }
-    case SensorTypes.TEMPERATURE: {
-      return 'var(--green-color, #4caf50)';
-    }
-    case SensorTypes.NUTRIENTS: {
-      return 'var(--brown-color, #795548)';
-    }
-    case SensorTypes.HUMIDITY: {
-      return 'var(--purple-color, #9c27b0)';
-    }
-    default: {
-      return 'var(--disabled-color: #bdbdbd;)';
-    }
+      case SensorTypes.ILLUMINANCE: {
+        return 'var(--yellow-color, #ffeb3b)';
+      }
+      case SensorTypes.MOISTURE: {
+        return 'var(--blue-color, #2196f3)';
+      }
+      case SensorTypes.TEMPERATURE: {
+        return 'var(--green-color, #4caf50)';
+      }
+      case SensorTypes.NUTRIENTS: {
+        return 'var(--brown-color, #795548)';
+      }
+      case SensorTypes.HUMIDITY: {
+        return 'var(--purple-color, #9c27b0)';
+      }
+      default: {
+        return 'var(--disabled-color: #bdbdbd;)';
+      }
     }
   }
 
