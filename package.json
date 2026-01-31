@@ -1,0 +1,20 @@
+{
+  "name": "b-parasite-plant-card",
+  "version": "1.0.0",
+  "description": "Custom card for b-parasite plant data",
+  "type": "module",
+  "scripts": {
+    "lint": "eslint dist/**/*.js",
+    "lint:fix": "eslint dist/**/*.js --fix"
+  },
+  "devDependencies": {
+    "eslint": "^9.39.2"
+  },
+  "keywords": [
+    "home-assistant",
+    "custom-card",
+    "plant"
+  ],
+  "author": "",
+  "license": "MIT"
+}
