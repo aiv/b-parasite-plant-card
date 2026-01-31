@@ -112,6 +112,7 @@ const DEFAULT_CONFIG = {
   state_color_battery: true,
   state_color_icon: true,
   state_color_sensor: true,
+  state_battery: true,
   title: '',
   custom_image: '',
 };
@@ -244,6 +245,17 @@ const SCHEMA_PART_TWO = [
       },
     ],
   },
+  {
+    type: 'grid',
+    schema: [
+      {
+        name: 'state_battery',
+        label: 'Show battery state',
+        selector: { boolean: {} },
+        default: DEFAULT_CONFIG.state_battery,
+      },
+    ],
+  },  
   {
     name: 'decimals',
     label: 'Sensor reading decimals',
@@ -902,11 +914,13 @@ class FytaPlantCard extends LitElement {
     // Check against the user-configured threshold
     const threshold = this.config?.battery_threshold ?? DEFAULT_CONFIG.battery_threshold;
 
-    // Only show battery if level is at or below the threshold
-    // Skip showing if threshold is 0 (never show)
-    // if (threshold === 0 || batteryLevel > threshold) {
-    //   return '';
-    // }
+    if (!this.config.state_battery) {
+      // Only show battery if level is at or below the threshold
+      // Skip showing if threshold is 0 (never show)
+      if (threshold === 0 || batteryLevel > threshold) {
+        return '';
+      }
+    }
 
     const BatteryStatusText = {
       GOOD: 'Good',
