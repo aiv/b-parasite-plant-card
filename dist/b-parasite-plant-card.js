@@ -142,7 +142,8 @@ const SCHEMA_PART_ONE = [
     required: true,
     selector: {
       device: {
-        integration: 'fyta',
+        integration: 'bthome',
+        manufacturer: 'b-parasite',
       },
     },
   },
