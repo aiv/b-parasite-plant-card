@@ -332,24 +332,6 @@ class BParasitePlantCard extends LitElement {
     this.config = parseConfig(config);
   }
 
-  _calculateDaysFromNow(inputDateString) {
-    if (!inputDateString) return null;
-
-    // Create Date object for the current date - use local midnight
-    const currentDate = new Date();
-    currentDate.setHours(0, 0, 0, 0);
-
-    // Create Date object for the input date handling ISO input format (YYYY-MM-DDThh:mm:ss)
-    const inputDate = new Date(inputDateString);
-
-    // Calculate time difference in milliseconds
-    const timeDifference = inputDate.getTime() - currentDate.getTime();
-
-    // Convert milliseconds to days
-    const DAY_IN_MILLISECONDS = 24 * 60 * 60 * 1000;
-    return Math.ceil(timeDifference / DAY_IN_MILLISECONDS);
-  }
-
   _click(entityId) {
     if (!entityId) return;
     const event = new Event(('hass-more-info'), {
@@ -360,18 +342,6 @@ class BParasitePlantCard extends LitElement {
     event.detail = { entityId };
     this.dispatchEvent(event);
     return event;
-  }
-
-  // Format date for display: Remove time component
-  _formatDateForDisplay(dateString) {
-    if (!dateString) return '';
-
-    // If date contains a T (ISO format), split and return just the date part
-    if (dateString.includes('T')) {
-      return dateString.split('T')[0];
-    }
-
-    return dateString;
   }
 
   // Format unit for card display (only show part before "/" if it exists)
@@ -412,18 +382,14 @@ class BParasitePlantCard extends LitElement {
     if (!hassEntity) return;
 
     if (id.startsWith(EntityType.SENSOR)) {
-      switch (hassEntity.name) {
-        default: {
-          switch (hassState.attributes.device_class) {
-            case DeviceClass.BATTERY:
-            case DeviceClass.ILLUMINANCE:
-            case DeviceClass.HUMIDITY:
-            case DeviceClass.MOISTURE:
-            case DeviceClass.TEMPERATURE: {
-              this._measurementEntityIds[hassState.attributes.device_class] = hassState.entity_id;
-              return;
-            }
-          }
+      switch (hassState.attributes.device_class) {
+        case DeviceClass.BATTERY:
+        case DeviceClass.ILLUMINANCE:
+        case DeviceClass.HUMIDITY:
+        case DeviceClass.MOISTURE:
+        case DeviceClass.TEMPERATURE: {
+          this._measurementEntityIds[hassState.attributes.device_class] = hassState.entity_id;
+          return;
         }
       }
     }
@@ -737,9 +703,7 @@ class BParasitePlantCard extends LitElement {
               <img src="${this._getPlantImageSrc()}">
             </div>
             <div id="plant-text">
-              <span
-                id="name"
-              >${this.config.title}</span>
+              <span id="name">${this.config.title}</span>
               ${this.config.show_scientific_name ? html`<span id="scientific-name">${this.config.scientific_name}</span>`: nothing}
             </div>
             ${this._renderBattery(this.hass)}
@@ -754,10 +718,6 @@ class BParasitePlantCard extends LitElement {
   }
 
   _renderBattery(hass) {
-    if (this._measurementEntityIds[SensorTypes.BATTERY] === '') {
-      return nothing;
-    }
-
     const entityId = this._measurementEntityIds[SensorTypes.BATTERY];
     const batteryLevel = parseInt(hass.states[entityId].state);
 
@@ -858,29 +818,6 @@ class BParasitePlantCard extends LitElement {
         return { percentage: 0, class: MeterClass.UNAVAILABLE };
       }
     }
-  }
-
-  _buildNutritionTooltipContent(statusState, daysUntilFertilization, lastFertilizationDateString, nextFertilizationDateString) {
-    const nutritionStatus = statusState.replace(/_/g, ' ');
-    const showFertilization = daysUntilFertilization !== null && !isNaN(daysUntilFertilization);
-
-    let fertilizationLine = nothing;
-    if (showFertilization) {
-      const daysText = Math.abs(daysUntilFertilization) === 1 ? 'day' : 'days';
-      fertilizationLine = daysUntilFertilization >= 0
-        ? html`<br>Fertilize in ${daysUntilFertilization} ${daysText}`
-        : html`<br>Fertilization overdue by ${Math.abs(daysUntilFertilization)} ${daysText}`;
-    }
-
-    const lastFertilizationLine = lastFertilizationDateString
-      ? html`<br>Last Fertilization: ${this._formatDateForDisplay(lastFertilizationDateString)}`
-      : nothing;
-
-    const nextFertilizationLine = nextFertilizationDateString
-      ? html`<br>Next Fertilization: ${this._formatDateForDisplay(nextFertilizationDateString)}`
-      : nothing;
-
-    return html`Nutrition Status: ${nutritionStatus}${fertilizationLine}${lastFertilizationLine}${nextFertilizationLine}`;
   }
 
   _renderSensors(hass) {
