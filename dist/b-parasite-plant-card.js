@@ -10,9 +10,9 @@ import { map } from "https://unpkg.com/lit-html@3.3.0/directives/map.js?module";
 const CUSTOM_CARD_NAME = 'b-paraiste-plant-card';
 
 const DecimalsState = {
-  UNTOUCHED: false,
-  ZERO: 0,
-  ONE: 1,
+  UNTOUCHED: 'untouched',
+  ZERO: '0',
+  ONE: '1',
 };
 
 const DeviceClass = {
@@ -508,8 +508,8 @@ class FytaPlantCard extends LitElement {
 
   _formatSensorValue(sensorEntity, configDecimals) {
     const sensorValue = sensorEntity.state;
-    if (configDecimals !== false) {
-      return this._formatDecimals(sensorValue, configDecimals);
+    if (configDecimals !== DecimalsState.UNTOUCHED) {
+      return this._formatDecimals(sensorValue, parseInt(configDecimals));
     }
 
     const entityPrecision = sensorEntity.display_precision;
