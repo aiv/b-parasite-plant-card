@@ -89,7 +89,6 @@ const TranslationKeys = {
   LIGHT: 'Illuminance',
   LIGHT_STATUS: 'light_status',
   MOISTURE_STATUS: 'moisture_status',
-  NUTRIENTS_STATUS: 'nutrients_status',
   PLANT_STATUS: 'plant_status',
   SALINITY: 'Humidity',
   SALINITY_STATUS: 'salinity_status',
@@ -305,46 +304,8 @@ const parseConfig = (config) => {
   // Then copy values from provided config
   if (config) {
     Object.keys(config).forEach((key) => {
-      if (
-        key.includes('_order') ||
-        ['show_light', 'show_moisture', 'show_temperature', 'show_nutrition', 'show_salinity'].includes(key)
-      ) {
-        containsLegacyKeys = true;
-      } else {
-        newConfig[key] = config[key];
-      }
+      newConfig[key] = config[key];
     });
-  }
-
-  // Upgrade legacy config from sensor order values
-  if (containsLegacyKeys) {
-    const LegacySensorType = {
-      NUTRITION: 'nutrition'
-    };
-
-    const leygacySensorKeyTypes = [
-      SensorTypes.LIGHT,
-      SensorTypes.MOISTURE,
-      SensorTypes.TEMPERATURE,
-      SensorTypes.SALINITY,
-      LegacySensorType.NUTRITION,
-    ];
-
-    newConfig.sensors = leygacySensorKeyTypes
-      .map((sensorType) => {
-        const orderKey = `${sensorType}_order`;
-
-        let orderValue = 5;
-        if (config[orderKey] !== undefined) {
-          orderValue = String(config[orderKey]);
-        }
-        const type = sensorType === LegacySensorType.NUTRITION ? SensorTypes.NUTRIENTS : sensorType;
-        return { type, order: orderValue, isEnabled: config[`show_${sensorType}`] || false };
-      })
-      .sort((a, b) => a.order - b.order)
-      .map(({ type, isEnabled }) => {
-        return { type, isEnabled };
-      });
   }
 
   if (newConfig.sensors.length === 0) {
@@ -533,16 +494,6 @@ class FytaPlantCard extends LitElement {
 
     if (id.startsWith(EntityType.SENSOR)) {
       switch (hassEntity.name) {
-        case TranslationKeys.LIGHT_STATUS:
-        case TranslationKeys.MOISTURE_STATUS:
-        case TranslationKeys.NUTRIENTS_STATUS:
-        case TranslationKeys.PLANT_STATUS:
-        case TranslationKeys.SALINITY_STATUS:
-        case TranslationKeys.TEMPERATURE_STATUS: {
-          this._stateEntityIds[hassEntity.name.replace('_status', '')] = hassState.entity_id;
-          return;
-        }
-
         case TranslationKeys.FERTILIZATION_LAST: {
           this._otherEntityIds[SensorTypes.FERTILIZATION_LAST] = hassState.entity_id;
           return;
@@ -1168,48 +1119,6 @@ class FytaPlantCard extends LitElement {
           </div>
           <div class="sensor-value">${formattedSensorValue}</div>
           <div class="uom">${this._formatDisplayUnit(unitOfMeasurement)}</div>
-        </div>
-      `;
-    };
-
-    // Render nutrition status
-    const renderNutrition = () => {
-      const statusEntityId = this._stateEntityIds[SensorTypes.NUTRIENTS_STATE];
-      const sensorState = hass.states[statusEntityId]?.state;
-      const color = this._getStateColor(SensorTypes.NUTRIENTS_STATE, hass);
-
-      // Get fertilizations date if available
-      const fertiliseLastEntityId = this._otherEntityIds[SensorTypes.FERTILIZATION_LAST];
-      const fertiliseNextEntityId = this._otherEntityIds[SensorTypes.FERTILIZATION_NEXT];
-      let daysUntilFertilization = null;
-      let lastFertilizationDateString = null;
-      let nextFertilizationDateString = null;
-
-      if (fertiliseNextEntityId && hass.states[fertiliseNextEntityId]) {
-        nextFertilizationDateString = hass.states[fertiliseNextEntityId].state;
-        daysUntilFertilization = this._calculateDaysFromNow(nextFertilizationDateString);
-      }
-
-      if (fertiliseLastEntityId && hass.states[fertiliseLastEntityId]) {
-        lastFertilizationDateString = hass.states[fertiliseLastEntityId].state;
-      }
-
-      // Format the next fertilization date for display
-      const meterState = this._calculateMeterState(SENSOR_SETTINGS[SensorTypes.NUTRIENTS], null, sensorState);
-
-      // Build tooltip content
-      const tooltipContent = this._buildNutritionTooltipContent(sensorState, daysUntilFertilization, lastFertilizationDateString, nextFertilizationDateString);
-      const sensorValue = daysUntilFertilization !== null && !isNaN(daysUntilFertilization) ? daysUntilFertilization : '-';
-
-      return html`
-        <div class="attribute tooltip" @click="${this._click.bind(this, statusEntityId)}" data-entity="${statusEntityId}">
-          <div class="tip" style="text-align:center;">${tooltipContent}</div>
-          <ha-icon icon="${SENSOR_SETTINGS[SensorTypes.NUTRIENTS].icon}" style="${this.config.state_color_icon ? ` color:${color};` : ''}"></ha-icon>
-          <div class="meter">
-            <span class="${this.config.state_color_sensor ? `${meterState.class}` : ''}" style="width: ${meterState.percentage}%;"></span>
-          </div>
-          <div class="sensor-value">${sensorValue}</div>
-          <div class="uom">${Math.abs(daysUntilFertilization) === 1 ? 'day' : 'days'}</div>
         </div>
       `;
     };
