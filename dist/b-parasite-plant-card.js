@@ -105,7 +105,7 @@ const DEFAULT_CONFIG = {
     { type: SensorTypes.LIGHT, isEnabled: true },
     { type: SensorTypes.MOISTURE, isEnabled: true },
     { type: SensorTypes.TEMPERATURE, isEnabled: true },
-    { type: SensorTypes.SALINITY, isEnabled: false },
+    { type: SensorTypes.SALINITY, isEnabled: true },
   ],
   preferred_image: PreferredPlantImage.USER,
   show_scientific_name: true,
@@ -1289,11 +1289,11 @@ export class FytaPlantCardEditor extends LitElement {
     });
 
     // Enable default sensors if none are enabled
-    if (configSensors.reduce((accumulator, item) => accumulator + (item.isEnabled ? 1 : 0), 0) === 0) {
-      configSensors = configSensors.map(({ type }) => {
-         return DEFAULT_CONFIG.sensors.find((defaultSensorSettings) => defaultSensorSettings.type === type);
-      });
-    }
+    // if (configSensors.reduce((accumulator, item) => accumulator + (item.isEnabled ? 1 : 0), 0) === 0) {
+    //   configSensors = configSensors.map(({ type }) => {
+    //      return DEFAULT_CONFIG.sensors.find((defaultSensorSettings) => defaultSensorSettings.type === type);
+    //   });
+    // }
 
     config.sensors = configSensors;
 
