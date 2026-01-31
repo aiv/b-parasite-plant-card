@@ -87,7 +87,6 @@ const SensorTypes = {
   PLANT_STATE: 'plant',
   SALINITY: 'salinity',
   SALINITY_STATE: 'salinity',
-  SCIENTIFIC_NAME: 'scientificName',
   TEMPERATURE: 'temperature',
   TEMPERATURE_STATE: 'temperature',
 };
@@ -103,7 +102,6 @@ const TranslationKeys = {
   PLANT_STATUS: 'plant_status',
   SALINITY: 'Humidity',
   SALINITY_STATUS: 'salinity_status',
-  SCIENTIFIC_NAME: 'scientific_name',
   TEMPERATURE_STATUS: 'temperature_status',
 };
 
@@ -152,6 +150,13 @@ const SCHEMA_PART_ONE = [
       text: {},
     },
   },
+  {
+    name: 'scientific_name',
+    label: 'Scientific Name',
+    selector: {
+      text: {},
+    },
+  },  
   {
     name: 'header_measurements',
     type: 'constant',
@@ -407,7 +412,6 @@ class FytaPlantCard extends LitElement {
       [SensorTypes.FERTILIZATION_NEXT]: '',
       [SensorTypes.PLANT_IMAGE_DEFAULT]: '',
       [SensorTypes.PLANT_IMAGE_USER]: '',
-      [SensorTypes.SCIENTIFIC_NAME]: '',
     };
   }
 
@@ -605,10 +609,6 @@ class FytaPlantCard extends LitElement {
           this._measurementEntityIds[SensorTypes.SALINITY] = hassState.entity_id;
           return;
         }
-        case TranslationKeys.SCIENTIFIC_NAME: {
-          this._otherEntityIds[SensorTypes.SCIENTIFIC_NAME] = hassState.entity_id;
-          return;
-        }
 
         default: {
           switch (hassState.attributes.device_class) {
@@ -691,7 +691,6 @@ class FytaPlantCard extends LitElement {
         text-wrap: nowrap;
         text-overflow: ellipsis;
         overflow: hidden;
-        cursor: pointer;
       }
 
       .header #plant-text > #scientific-name {
@@ -699,7 +698,6 @@ class FytaPlantCard extends LitElement {
         text-wrap: nowrap;
         text-overflow: ellipsis;
         overflow: hidden;
-        cursor: pointer;
       }
 
       .header #plant-battery {
@@ -935,16 +933,14 @@ class FytaPlantCard extends LitElement {
                 src="${this._getPlantImageSrc(this.hass)}"
                 class="${this.config.state_color_plant === PlantStateColorState.IMAGE ? 'state' : ''}"
                 style="${this.config.state_color_plant === PlantStateColorState.IMAGE ? `border-color:${this._getStateColor(SensorTypes.PLANT_STATE, this.hass)};` : ''}"
-                @click="${this._click.bind(this, this._stateEntityIds[SensorTypes.PLANT_STATE])}"
               >
             </div>
             <div id="plant-text">
               <span
                 id="name"
                 style="${this.config.state_color_plant === PlantStateColorState.NAME ? `color:${this._getStateColor(SensorTypes.PLANT_STATE, this.hass)};` : ''}"
-                @click="${this._click.bind(this, this._stateEntityIds[SensorTypes.PLANT_STATE])}"
               >${this.config.title}</span>
-              ${this.config.show_scientific_name ? html`<span id="scientific-name" @click="${this._click.bind(this, this._stateEntityIds[SensorTypes.PLANT_STATE])}">${this.hass.states[this._otherEntityIds[SensorTypes.SCIENTIFIC_NAME]]?.state || ''}</span>`: nothing}
+              ${this.config.show_scientific_name ? html`<span id="scientific-name">${this.config.scientific_name}</span>`: nothing}
             </div>
             ${this._renderBattery(this.hass)}
           </div>
@@ -970,7 +966,6 @@ class FytaPlantCard extends LitElement {
 
     // Only show battery if level is at or below the threshold
     // Skip showing if threshold is 0 (never show)
-    // TODO: refactor
     // if (threshold === 0 || batteryLevel > threshold) {
     //   return '';
     // }
