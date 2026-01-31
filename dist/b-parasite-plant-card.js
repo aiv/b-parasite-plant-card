@@ -243,11 +243,6 @@ const SCHEMA_PART_TWO = [
         selector: { boolean: {} },
         default: DEFAULT_CONFIG.state_color_icon,
       },
-    ],
-  },
-  {
-    type: 'grid',
-    schema: [
       {
         name: 'state_battery',
         label: 'Show battery state',
@@ -255,7 +250,7 @@ const SCHEMA_PART_TWO = [
         default: DEFAULT_CONFIG.state_battery,
       },
     ],
-  },  
+  },
   {
     name: 'decimals',
     label: 'Sensor reading decimals',
