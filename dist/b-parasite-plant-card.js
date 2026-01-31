@@ -83,6 +83,22 @@ const DEFAULT_CONFIG = {
   title: '',
   scientific_name: '',
   custom_image: '',
+  moisture_too_low_max: 10,
+  moisture_low_max: 30,
+  moisture_perfect_max: 70,
+  moisture_high_max: 90,
+  illuminance_too_low_max: 5,
+  illuminance_low_max: 10,
+  illuminance_perfect_max: 70,
+  illuminance_high_max: 90,
+  temperature_too_low_max: 5,
+  temperature_low_max: 10,
+  temperature_perfect_max: 30,
+  temperature_high_max: 40,
+  humidity_too_low_max: 20,
+  humidity_low_max: 30,
+  humidity_perfect_max: 70,
+  humidity_high_max: 90,
 };
 
 const SCHEMA_PART_ONE = [
@@ -137,6 +153,254 @@ const SCHEMA_PART_ONE = [
 ];
 
 const SCHEMA_PART_TWO = [
+  {
+    name: 'header_moisture',
+    type: 'constant',
+    label: 'Moisture Sensor Settings',
+  },
+  {
+    type: 'grid',
+    schema: [
+      {
+        name: 'moisture_too_low_max',
+        label: 'Too Low Max (%)',
+        selector: {
+          number: {
+            min: 0,
+            max: 100,
+            step: 1,
+            mode: 'box',
+          },
+        },
+        default: DEFAULT_CONFIG.moisture_too_low_max,
+      },
+      {
+        name: 'moisture_low_max',
+        label: 'Low Max (%)',
+        selector: {
+          number: {
+            min: 0,
+            max: 100,
+            step: 1,
+            mode: 'box',
+          },
+        },
+        default: DEFAULT_CONFIG.moisture_low_max,
+      },
+      {
+        name: 'moisture_perfect_max',
+        label: 'Perfect Max (%)',
+        selector: {
+          number: {
+            min: 0,
+            max: 100,
+            step: 1,
+            mode: 'box',
+          },
+        },
+        default: DEFAULT_CONFIG.moisture_perfect_max,
+      },
+      {
+        name: 'moisture_high_max',
+        label: 'High Max (%)',
+        selector: {
+          number: {
+            min: 0,
+            max: 100,
+            step: 1,
+            mode: 'box',
+          },
+        },
+        default: DEFAULT_CONFIG.moisture_high_max,
+      },
+    ],
+  },
+  {
+    name: 'header_illuminance',
+    type: 'constant',
+    label: 'Illuminance Sensor Settings',
+  },
+  {
+    type: 'grid',
+    schema: [
+      {
+        name: 'illuminance_too_low_max',
+        label: 'Too Low Max (lx)',
+        selector: {
+          number: {
+            min: 0,
+            max: 10000,
+            step: 1,
+            mode: 'box',
+          },
+        },
+        default: DEFAULT_CONFIG.illuminance_too_low_max,
+      },
+      {
+        name: 'illuminance_low_max',
+        label: 'Low Max (lx)',
+        selector: {
+          number: {
+            min: 0,
+            max: 10000,
+            step: 1,
+            mode: 'box',
+          },
+        },
+        default: DEFAULT_CONFIG.illuminance_low_max,
+      },
+      {
+        name: 'illuminance_perfect_max',
+        label: 'Perfect Max (lx)',
+        selector: {
+          number: {
+            min: 0,
+            max: 10000,
+            step: 1,
+            mode: 'box',
+          },
+        },
+        default: DEFAULT_CONFIG.illuminance_perfect_max,
+      },
+      {
+        name: 'illuminance_high_max',
+        label: 'High Max (lx)',
+        selector: {
+          number: {
+            min: 0,
+            max: 10000,
+            step: 1,
+            mode: 'box',
+          },
+        },
+        default: DEFAULT_CONFIG.illuminance_high_max,
+      },
+    ],
+  },
+  {
+    name: 'header_temperature',
+    type: 'constant',
+    label: 'Temperature Sensor Settings',
+  },
+  {
+    type: 'grid',
+    schema: [
+      {
+        name: 'temperature_too_low_max',
+        label: 'Too Low Max (°C)',
+        selector: {
+          number: {
+            min: -20,
+            max: 60,
+            step: 1,
+            mode: 'box',
+          },
+        },
+        default: DEFAULT_CONFIG.temperature_too_low_max,
+      },
+      {
+        name: 'temperature_low_max',
+        label: 'Low Max (°C)',
+        selector: {
+          number: {
+            min: -20,
+            max: 60,
+            step: 1,
+            mode: 'box',
+          },
+        },
+        default: DEFAULT_CONFIG.temperature_low_max,
+      },
+      {
+        name: 'temperature_perfect_max',
+        label: 'Perfect Max (°C)',
+        selector: {
+          number: {
+            min: -20,
+            max: 60,
+            step: 1,
+            mode: 'box',
+          },
+        },
+        default: DEFAULT_CONFIG.temperature_perfect_max,
+      },
+      {
+        name: 'temperature_high_max',
+        label: 'High Max (°C)',
+        selector: {
+          number: {
+            min: -20,
+            max: 60,
+            step: 1,
+            mode: 'box',
+          },
+        },
+        default: DEFAULT_CONFIG.temperature_high_max,
+      },
+    ],
+  },
+  {
+    name: 'header_humidity',
+    type: 'constant',
+    label: 'Humidity Sensor Settings',
+  },
+  {
+    type: 'grid',
+    schema: [
+      {
+        name: 'humidity_too_low_max',
+        label: 'Too Low Max (%)',
+        selector: {
+          number: {
+            min: 0,
+            max: 100,
+            step: 1,
+            mode: 'box',
+          },
+        },
+        default: DEFAULT_CONFIG.humidity_too_low_max,
+      },
+      {
+        name: 'humidity_low_max',
+        label: 'Low Max (%)',
+        selector: {
+          number: {
+            min: 0,
+            max: 100,
+            step: 1,
+            mode: 'box',
+          },
+        },
+        default: DEFAULT_CONFIG.humidity_low_max,
+      },
+      {
+        name: 'humidity_perfect_max',
+        label: 'Perfect Max (%)',
+        selector: {
+          number: {
+            min: 0,
+            max: 100,
+            step: 1,
+            mode: 'box',
+          },
+        },
+        default: DEFAULT_CONFIG.humidity_perfect_max,
+      },
+      {
+        name: 'humidity_high_max',
+        label: 'High Max (%)',
+        selector: {
+          number: {
+            min: 0,
+            max: 100,
+            step: 1,
+            mode: 'box',
+          },
+        },
+        default: DEFAULT_CONFIG.humidity_high_max,
+      },
+    ],
+  },
   {
     name: 'header_layout',
     type: 'constant',
@@ -866,13 +1130,18 @@ class BParasitePlantCard extends LitElement {
       switch (sensorType) {
         case SensorTypes.MOISTURE:
           sensorStatus = MeasurementStatusStates.NO_DATA;
-          if (sensorEntity.state < 10) {
+          const moistureTooLowMax = this.config?.moisture_too_low_max ?? DEFAULT_CONFIG.moisture_too_low_max;
+          const moistureLowMax = this.config?.moisture_low_max ?? DEFAULT_CONFIG.moisture_low_max;
+          const moisturePerfectMax = this.config?.moisture_perfect_max ?? DEFAULT_CONFIG.moisture_perfect_max;
+          const moistureHighMax = this.config?.moisture_high_max ?? DEFAULT_CONFIG.moisture_high_max;
+          
+          if (sensorEntity.state < moistureTooLowMax) {
             sensorStatus = MeasurementStatusStates.TOO_LOW;
-          } else if (sensorEntity.state < 30) {
+          } else if (sensorEntity.state < moistureLowMax) {
             sensorStatus = MeasurementStatusStates.LOW;
-          } else if (sensorEntity.state <= 70) {
+          } else if (sensorEntity.state <= moisturePerfectMax) {
             sensorStatus = MeasurementStatusStates.PERFECT;
-          } else if (sensorEntity.state <= 90) {
+          } else if (sensorEntity.state <= moistureHighMax) {
             sensorStatus = MeasurementStatusStates.HIGH;
           } else {
             sensorStatus = MeasurementStatusStates.TOO_HIGH;
@@ -880,13 +1149,18 @@ class BParasitePlantCard extends LitElement {
           break;
         case SensorTypes.ILLUMINANCE:
           sensorStatus = MeasurementStatusStates.NO_DATA;
-          if (sensorEntity.state < 5) {
+          const illuminanceTooLowMax = this.config?.illuminance_too_low_max ?? DEFAULT_CONFIG.illuminance_too_low_max;
+          const illuminanceLowMax = this.config?.illuminance_low_max ?? DEFAULT_CONFIG.illuminance_low_max;
+          const illuminancePerfectMax = this.config?.illuminance_perfect_max ?? DEFAULT_CONFIG.illuminance_perfect_max;
+          const illuminanceHighMax = this.config?.illuminance_high_max ?? DEFAULT_CONFIG.illuminance_high_max;
+          
+          if (sensorEntity.state < illuminanceTooLowMax) {
             sensorStatus = MeasurementStatusStates.TOO_LOW;
-          } else if (sensorEntity.state < 10) {
+          } else if (sensorEntity.state < illuminanceLowMax) {
             sensorStatus = MeasurementStatusStates.LOW;
-          } else if (sensorEntity.state <= 70) {
+          } else if (sensorEntity.state <= illuminancePerfectMax) {
             sensorStatus = MeasurementStatusStates.PERFECT;
-          } else if (sensorEntity.state <= 90) {
+          } else if (sensorEntity.state <= illuminanceHighMax) {
             sensorStatus = MeasurementStatusStates.HIGH;
           } else {
             sensorStatus = MeasurementStatusStates.TOO_HIGH;
@@ -894,27 +1168,37 @@ class BParasitePlantCard extends LitElement {
           break;
         case SensorTypes.TEMPERATURE:
           sensorStatus = MeasurementStatusStates.NO_DATA;
-          if (sensorEntity.state < 5) {
+          const temperatureTooLowMax = this.config?.temperature_too_low_max ?? DEFAULT_CONFIG.temperature_too_low_max;
+          const temperatureLowMax = this.config?.temperature_low_max ?? DEFAULT_CONFIG.temperature_low_max;
+          const temperaturePerfectMax = this.config?.temperature_perfect_max ?? DEFAULT_CONFIG.temperature_perfect_max;
+          const temperatureHighMax = this.config?.temperature_high_max ?? DEFAULT_CONFIG.temperature_high_max;
+          
+          if (sensorEntity.state < temperatureTooLowMax) {
             sensorStatus = MeasurementStatusStates.TOO_LOW;
-          } else if (sensorEntity.state < 10) {
+          } else if (sensorEntity.state < temperatureLowMax) {
             sensorStatus = MeasurementStatusStates.LOW;
-          } else if (sensorEntity.state <= 30) {
+          } else if (sensorEntity.state <= temperaturePerfectMax) {
             sensorStatus = MeasurementStatusStates.PERFECT;
-          } else if (sensorEntity.state <= 40) {
+          } else if (sensorEntity.state <= temperatureHighMax) {
             sensorStatus = MeasurementStatusStates.HIGH;
           } else {
             sensorStatus = MeasurementStatusStates.TOO_HIGH;
-          }          
+          }
           break;
         case SensorTypes.HUMIDITY:
           sensorStatus = MeasurementStatusStates.NO_DATA;
-          if (sensorEntity.state < 20) {
+          const humidityTooLowMax = this.config?.humidity_too_low_max ?? DEFAULT_CONFIG.humidity_too_low_max;
+          const humidityLowMax = this.config?.humidity_low_max ?? DEFAULT_CONFIG.humidity_low_max;
+          const humidityPerfectMax = this.config?.humidity_perfect_max ?? DEFAULT_CONFIG.humidity_perfect_max;
+          const humidityHighMax = this.config?.humidity_high_max ?? DEFAULT_CONFIG.humidity_high_max;
+          
+          if (sensorEntity.state < humidityTooLowMax) {
             sensorStatus = MeasurementStatusStates.TOO_LOW;
-          } else if (sensorEntity.state < 30) {
+          } else if (sensorEntity.state < humidityLowMax) {
             sensorStatus = MeasurementStatusStates.LOW;
-          } else if (sensorEntity.state <= 70) {
+          } else if (sensorEntity.state <= humidityPerfectMax) {
             sensorStatus = MeasurementStatusStates.PERFECT;
-          } else if (sensorEntity.state <= 90) {
+          } else if (sensorEntity.state <= humidityHighMax) {
             sensorStatus = MeasurementStatusStates.HIGH;
           } else {
             sensorStatus = MeasurementStatusStates.TOO_HIGH;
@@ -1065,9 +1349,6 @@ export class BParasitePlantCardEditor extends LitElement {
       }
       case SensorTypes.TEMPERATURE: {
         return 'var(--green-color, #4caf50)';
-      }
-      case SensorTypes.NUTRIENTS: {
-        return 'var(--brown-color, #795548)';
       }
       case SensorTypes.HUMIDITY: {
         return 'var(--purple-color, #9c27b0)';
